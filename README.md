@@ -30,7 +30,3 @@ curl -o <YYYYMMDD>C.csv -d 'hdkDtaEdicao=DD/MM/YYYY' -d 'hdnTipoEdicao=C' -d 'hd
 ```
 ## Ferramenta para converter o curl para chamadas em outras linguagens
 [Conversão de curl online](https://curlconverter.com/)
-## Executa código python para baixar o csv do diário oficial
-```bash
-python ./src/download_do_csv.py
-```
