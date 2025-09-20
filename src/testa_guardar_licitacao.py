@@ -19,7 +19,7 @@ def url_to_text(link):
         paginas = pdf_reader.pages
         paginas_texto = ''
         for pagina in range(len(paginas)):
-            pagina_atual = paginas[pagina].extract_text()
+            pagina_atual = re.sub(r'\s+', ' ', paginas[pagina].extract_text()).strip()
             paginas_texto += pagina_atual
         return paginas_texto
     return ''
@@ -44,14 +44,12 @@ for dia in range(19,20):
         # Carrega data frame pandas com arquivo csv lido do site do diário oficial
         arquivo_do_csv = io.StringIO(stream_arquivo_do_csv.text)
         df_diario_oficial = pd.read_csv(arquivo_do_csv, sep=';', encoding='utf-8-sig', quoting=1)
-        # df_diario_oficial['Texto'] = ''
-        # df_diario_oficial['Links_Externos'] = ''
         # Filtrar coluna séries a partir da string 'Ata da Licita&ccedil;&atilde;o (NP)'
         ata_da_licitacao = 'Ata da Licita&ccedil;&atilde;o (NP)'
         documentos_para_importar = df_diario_oficial[df_diario_oficial['Série']==f'{ata_da_licitacao}'].copy()
+        documentos_para_importar.rename(columns={'Veículo':'Veiculo','Órgão':'Orgao','Série':'Serie'}, inplace=True)
         documentos_para_importar['Data_Publicacao'] = data_referencia
         documentos_para_importar['Texto'] = ''
-        #documentos_para_importar['Qtd_Links_Externos'] = 0
         documentos_para_importar['Links_Externos'] = ''
         documentos_para_importar['Texto_Links_Externos'] = ''
         # Acessa o link com o texto do diário oficial extrai somente o texto 
@@ -79,7 +77,4 @@ for dia in range(19,20):
                 documentos_para_importar.at[i,'Links_Externos'] = link_externo
                 #print(i,link_externo)
                 documentos_para_importar.at[i,'Texto_Links_Externos'] = url_to_text(link_externo)
-            #documentos_para_importar['Qtd_Links_Externos'] = qtd_links
-        #documentos_para_importar[['Texto','Link']]
-        #documentos_para_importar.to_csv(f'teste_documentos_para_importar/teste_documentos _para_importar{data_referencia.replace("/","")}.csv', sep=';' ,encoding='utf-8-sig', index=False, header=True)
         documentos_para_importar.to_parquet(f'teste_documentos_para_importar/teste_documentos _para_importar{data_referencia.replace("/","")}.parquet', engine='fastparquet')
